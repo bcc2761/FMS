@@ -19,22 +19,22 @@
 
 !> @brief Converts a 1D array of real numbers to a string
 !> @return The 1D array as a string
-function STRINGIFY_1D_(arr, fmt)
+function STRINGIFY_1D_(arr, arr_fmt)
   real(STRING_UTILS_KIND_), dimension(:), intent(in) :: arr !< Real array to be converted to a string
-  character(*), intent(in), optional :: fmt !< Optional format string for the real array entries
+  character(*), intent(in), optional :: arr_fmt !< Optional format string for the real array entries
   character(:), allocatable :: STRINGIFY_1D_
   integer :: i, n
 
   n = size(arr)
 
   if (n .gt. 0) then
-    STRINGIFY_1D_ = "[" // string(arr(1), fmt)
+    STRINGIFY_1D_ = "[" // string(arr(1), arr_fmt)
   else
     STRINGIFY_1D_ = "["
   endif
 
   do i = 2,n
-    STRINGIFY_1D_ = STRINGIFY_1D_ // ", " // string(arr(i), fmt)
+    STRINGIFY_1D_ = STRINGIFY_1D_ // ", " // string(arr(i), arr_fmt)
   enddo
 
   STRINGIFY_1D_ = STRINGIFY_1D_ // "]"
@@ -42,22 +42,22 @@ end function
 
 !> @brief Converts a 2D array of real numbers to a string
 !> @return The 2D array as a string
-function STRINGIFY_2D_(arr, fmt)
+function STRINGIFY_2D_(arr, arr_fmt)
   real(STRING_UTILS_KIND_), dimension(:,:), intent(in) :: arr !< Real array to be converted to a string
-  character(*), intent(in), optional :: fmt !< Optional format string for the real array entries
+  character(*), intent(in), optional :: arr_fmt !< Optional format string for the real array entries
   character(:), allocatable :: STRINGIFY_2D_
   integer :: i, n
 
   n = size(arr, 2)
 
   if (n .gt. 0) then
-    STRINGIFY_2D_ = "[" // STRINGIFY_1D_(arr(:,1), fmt)
+    STRINGIFY_2D_ = "[" // STRINGIFY_1D_(arr(:,1), arr_fmt)
   else
     STRINGIFY_2D_ = "["
   endif
 
   do i = 2,n
-    STRINGIFY_2D_ = STRINGIFY_2D_ // ", " // STRINGIFY_1D_(arr(:,i), fmt)
+    STRINGIFY_2D_ = STRINGIFY_2D_ // ", " // STRINGIFY_1D_(arr(:,i), arr_fmt)
   enddo
 
   STRINGIFY_2D_ = STRINGIFY_2D_ // "]"
@@ -65,22 +65,22 @@ end function
 
 !> @brief Converts a 3D array of real numbers to a string
 !> @return The 3D array as a string
-function STRINGIFY_3D_(arr, fmt)
+function STRINGIFY_3D_(arr, arr_fmt)
   real(STRING_UTILS_KIND_), dimension(:,:,:), intent(in) :: arr !< Real array to be converted to a string
-  character(*), intent(in), optional :: fmt !< Optional format string for the real array entries
+  character(*), intent(in), optional :: arr_fmt !< Optional format string for the real array entries
   character(:), allocatable :: STRINGIFY_3D_
   integer :: i, n
 
   n = size(arr, 3)
 
   if (n .gt. 0) then
-    STRINGIFY_3D_ = "[" // STRINGIFY_2D_(arr(:,:,1), fmt)
+    STRINGIFY_3D_ = "[" // STRINGIFY_2D_(arr(:,:,1), arr_fmt)
   else
     STRINGIFY_3D_ = "["
   endif
 
   do i = 2,n
-    STRINGIFY_3D_ = STRINGIFY_3D_ // ", " // STRINGIFY_2D_(arr(:,:,i), fmt)
+    STRINGIFY_3D_ = STRINGIFY_3D_ // ", " // STRINGIFY_2D_(arr(:,:,i), arr_fmt)
   enddo
 
   STRINGIFY_3D_ = STRINGIFY_3D_ // "]"

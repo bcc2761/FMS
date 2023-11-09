@@ -2526,7 +2526,7 @@ type(time_type)  , intent(in) :: Time !< Time that will be printed
 character (len=*), intent(in), optional :: str !< Character string that precedes the printed time
 integer          , intent(in), optional :: unit !< Unit number for printed output, defaults to stdout
 integer :: s,d,ticks, ns,nd,nt, unit_in
-character(len=19) :: fmt
+character(len=19) :: time_fmt
 
 ! prints the time to standard output (or optional unit) as days and seconds
 ! NOTE: there is no check for PE number
@@ -2541,13 +2541,13 @@ character(len=19) :: fmt
    nd = int(log10(real(max(1,d))))+1
    ns = int(log10(real(max(1,s))))+1
    nt = int(log10(real(max(1,ticks))))+1
-   write (fmt,10) nd, ns, nt
+   write (time_fmt,10) nd, ns, nt
 10 format ('(a,i',i2.2,',a,i',i2.2,',a,i',i2.2,')')
 
   if (present(str)) then
-     write (unit_in,fmt) trim(str)//' day=', d, ', sec=', s, ', ticks=', ticks
+     write (unit_in,time_fmt) trim(str)//' day=', d, ', sec=', s, ', ticks=', ticks
   else
-     write (unit_in,fmt)       'TIME: day=', d, ', sec=', s, ', ticks=', ticks
+     write (unit_in,time_fmt)       'TIME: day=', d, ', sec=', s, ', ticks=', ticks
   endif
 
 end subroutine print_time

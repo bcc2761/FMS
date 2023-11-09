@@ -381,22 +381,22 @@ end subroutine diag_integral_init
 !! <b> Template: </b>
 !!
 !! @code{.f90}
-!! call diag_integral_field_init (name, format)
+!! call diag_integral_field_init (name, f_format)
 !! @endcode
 !!
 !! <b> Parameters: </b>
 !!
 !! @code{.f90}
-!! character(len=*), intent(in) :: name, format
+!! character(len=*), intent(in) :: name, f_format
 !! @endcode
 !!
 !! @param [in] <name> Name of the field to be integrated
-!! @param [in] <format> Output format of the field to be integrated
+!! @param [in] <f_format> Output format of the field to be integrated
 !!
-subroutine diag_integral_field_init (name, format)
+subroutine diag_integral_field_init (name, f_format)
 
 character(len=*), intent(in) :: name !< Name of the field to be integrated
-character(len=*), intent(in) :: format !< Output format of the field to be integrated
+character(len=*), intent(in) :: f_format !< Output format of the field to be integrated
 
 !-------------------------------------------------------------------------------
 ! local variables:
@@ -442,7 +442,7 @@ character(len=*), intent(in) :: format !< Output format of the field to be integ
 !    counted to zero.
 !-------------------------------------------------------------------------------
       field_name   (num_field) = name
-      field_format (num_field) = format
+      field_format (num_field) = f_format
       field_sum    (num_field) = 0.0_r8_kind
       field_count  (num_field) = 0
 

@@ -230,9 +230,9 @@ module time_interp_external_mod
 !<IN  NAME="fieldname" TYPE="character(len=*)">
 ! fieldname (in file)
 !</IN>
-!<IN NAME="format" TYPE="integer">
+!<IN NAME="format_flag" TYPE="integer">
 ! mpp_io flag for format of file (optional). Currently only "MPP_NETCDF" supported
-!</IN>
+!</IN>time_interp/time_interp_external.F90
 !<IN NAME="threading" TYPE="integer">
 ! mpp_io flag for threading (optional).  "MPP_SINGLE" means root pe reads global field and distributes to other PEs
 ! "MPP_MULTI" means all PEs read data
@@ -262,7 +262,7 @@ module time_interp_external_mod
     !> @return integer id of field for future calls to time_interp_external.
     !> @param file filename
     !> @param fieldname fieldname (in file)
-    !> @param format mpp_io flag for format of file(optional). Currently only "MPP_NETCDF" supported
+    !> @param format_flag mpp_io flag for format of file(optional). Currently only "MPP_NETCDF" supported
     !> @param threading mpp_io flag for threading (optional). "MPP_SINGLE" means root pe reads
     !! global field and distributes to other PEs. "MPP_MULTI" means all PEs read data
     !> @param domain domain flag (optional)
@@ -271,12 +271,12 @@ module time_interp_external_mod
     !> @param verbose verbose flag for debugging (optional).
     !> @param [out] axis_names List of axis names (optional).
     !> @param [inout] axis_sizes array of axis lengths ordered X-Y-Z-T (optional).
-    function init_external_field(file,fieldname,format,threading,domain,desired_units,&
+    function init_external_field(file,fieldname,format_flag,threading,domain,desired_units,&
          verbose,axis_centers,axis_sizes,override,correct_leap_year_inconsistency,&
          permit_calendar_conversion,use_comp_domain,ierr, nwindows, ignore_axis_atts )
 
       character(len=*), intent(in)            :: file,fieldname
-      integer, intent(in), optional           :: format, threading
+      integer, intent(in), optional           :: format_flag, threading
       logical, intent(in), optional           :: verbose
       character(len=*), intent(in), optional  :: desired_units
       type(domain2d), intent(in), optional    :: domain
@@ -322,7 +322,7 @@ module time_interp_external_mod
       use_comp_domain1 = .false.
       if(PRESENT(use_comp_domain)) use_comp_domain1 = use_comp_domain
       form=MPP_NETCDF
-      if (PRESENT(format)) form = format
+      if (PRESENT(format_flag)) form = format_flag
       thread = MPP_MULTI
       if (PRESENT(threading)) thread = threading
       fset = MPP_SINGLE
