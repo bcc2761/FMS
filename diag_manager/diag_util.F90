@@ -1057,13 +1057,13 @@ END SUBROUTINE check_bounds_are_exact_dynamic
 
 
   !> @brief Initialize the output file.
-  SUBROUTINE init_file(name, output_freq, output_units, data_format, time_units, long_name, tile_count,&
+  SUBROUTINE init_file(name, output_freq, output_units, format, time_units, long_name, tile_count,&
        & new_file_freq, new_file_freq_units, start_time, file_duration, file_duration_units, filename_time_bounds)
     CHARACTER(len=*), INTENT(in) :: name !< File name.
     CHARACTER(len=*), INTENT(in) :: long_name !< Long name for time axis.
     INTEGER, INTENT(in) :: output_freq !< How often data is to be written to the file.
     INTEGER, INTENT(in) :: output_units !< The output frequency unit.  (MIN, HOURS, DAYS, etc.)
-    INTEGER, INTENT(in) :: data_format !< Number type/kind the data is to be written out to the file.
+    INTEGER, INTENT(in) :: format !< Number type/kind the data is to be written out to the file.
     INTEGER, INTENT(in) :: time_units !< Time axis units.
     INTEGER, INTENT(in) :: tile_count !< Tile number.
     INTEGER, INTENT(in), OPTIONAL :: new_file_freq !< How often a new file is to be created.
@@ -1091,7 +1091,7 @@ END SUBROUTINE check_bounds_are_exact_dynamic
         ! Start with the required parameters
         IF ( files(n)%output_freq.NE.output_freq .OR.&
            & files(n)%output_units.NE.output_units .OR.&
-           & files(n)%data_format.NE.data_format .OR.&
+           & files(n)%format.NE.format .OR.&
            & files(n)%time_units.NE.time_units .OR.&
            & TRIM(files(n)%long_name).NE.TRIM(long_name) .OR.&
            & files(n)%tile_count.NE.tile_count ) THEN
@@ -1189,7 +1189,7 @@ END SUBROUTINE check_bounds_are_exact_dynamic
     files(num_files)%name = TRIM(name)
     files(num_files)%output_freq = output_freq
     files(num_files)%output_units = output_units
-    files(num_files)%data_format = FORMAT
+    files(num_files)%format = FORMAT
     files(num_files)%time_units = time_units
     files(num_files)%long_name = TRIM(long_name)
     files(num_files)%num_fields = 0
@@ -1498,7 +1498,7 @@ END SUBROUTINE check_bounds_are_exact_dynamic
           file_num = find_file(output_file, tile_count)
           IF(file_num < 0) THEN
              CALL init_file(files(file_num_tile1)%name, files(file_num_tile1)%output_freq,&
-                  & files(file_num_tile1)%output_units, files(file_num_tile1)%data_format,&
+                  & files(file_num_tile1)%output_units, files(file_num_tile1)%format,&
                   & files(file_num_tile1)%time_units, files(file_num_tile1)%long_name,&
                   & tile_count, files(file_num_tile1)%new_file_freq,&
                   & files(file_num_tile1)%new_file_freq_units, files(file_num_tile1)%start_time,&
@@ -2208,8 +2208,8 @@ END SUBROUTINE check_bounds_are_exact_dynamic
     position = INDEX(filetail, 'dy')
     IF ( position > 0 ) THEN
        width = filetail(position-1:position-1)
-       FORMAT(7:9) = width//'.'//width
-       WRITE(dy, FORMAT) dy1_s
+       string_format(7:9) = width//'.'//width
+       WRITE(dy, string_format) dy1_s
     ELSE
        dy = ' '
     END IF
@@ -2238,7 +2238,7 @@ END SUBROUTINE check_bounds_are_exact_dynamic
     position = INDEX(filetail, 'mi')
     IF(position>0) THEN
        width = filetail(position-1:position-1)
-       stirng_format(7:9) = width//'.'//width
+       string_format(7:9) = width//'.'//width
        WRITE(mi, string_format) mi1_s
     ELSE
        mi = ' '
