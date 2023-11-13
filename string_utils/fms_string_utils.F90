@@ -242,15 +242,15 @@ end subroutine fms_f2c_string
 
   !> @brief Converts a number or a Boolean value to a string
   !> @return The argument as a string
-  function string(v, arg_fmt)
+  function string(v, fmt)
     class(*), intent(in) :: v !< Value to be converted to a string
-    character(*), intent(in), optional :: arg_fmt !< Optional format string for a real or integral argument
+    character(*), intent(in), optional :: fmt !< Optional format string for a real or integral argument
     character(:), allocatable :: string
 
     select type(v)
       type is (logical)
-        if (present(arg_fmt)) then
-          call mpp_error(WARNING, "string(): Ignoring `arg_fmt` argument for type `logical`")
+        if (present(fmt)) then
+          call mpp_error(WARNING, "string(): Ignoring `fmt` argument for type `logical`")
         endif
         if (v) then
           string = "True"
@@ -260,8 +260,8 @@ end subroutine fms_f2c_string
 
       type is (integer(i4_kind))
         allocate(character(32) :: string)
-        if (present(arg_fmt)) then
-          write(string, "(" // arg_fmt // ")") v
+        if (present(fmt)) then
+          write(string, "(" // fmt // ")") v
         else
           write(string, '(i0)') v
         endif
@@ -269,8 +269,8 @@ end subroutine fms_f2c_string
 
       type is (integer(i8_kind))
         allocate(character(32) :: string)
-        if (present(arg_fmt)) then
-          write(string, "(" // arg_fmt // ")") v
+        if (present(fmt)) then
+          write(string, "(" // fmt // ")") v
         else
           write(string, '(i0)') v
         endif
@@ -278,8 +278,8 @@ end subroutine fms_f2c_string
 
       type is (real(r4_kind))
         allocate(character(32) :: string)
-        if (present(arg_fmt)) then
-          write(string, "(" // arg_fmt // ")") v
+        if (present(fmt)) then
+          write(string, "(" // fmt // ")") v
         else
           write(string, *) v
         endif
@@ -287,8 +287,8 @@ end subroutine fms_f2c_string
 
       type is (real(r8_kind))
         allocate(character(32) :: string)
-        if (present(arg_fmt)) then
-          write(string, "(" // arg_fmt // ")") v
+        if (present(fmt)) then
+          write(string, "(" // fmt // ")") v
         else
           write(string, *) v
         endif
