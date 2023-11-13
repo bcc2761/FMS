@@ -137,7 +137,7 @@ use platform_mod
      INTEGER :: num_fields
      INTEGER :: output_freq
      INTEGER :: output_units
-     INTEGER :: FORMAT
+     INTEGER :: data_format
      INTEGER :: time_units
      INTEGER :: file_unit
      INTEGER :: bytes_written
