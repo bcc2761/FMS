@@ -2540,12 +2540,12 @@ contains
     logical,          optional, intent(in)    :: pass_through_ice !< If true, only increment BCs whose
                                                          !! value of pass_through ice matches this
 
-    real(r8_kind) :: scale, sc_prev
+    real(r8_kind) :: scale_num, sc_prev
     logical :: increment_bc
     integer :: i, j, m, n, n1, n2, halo, i_off, j_off
 
-    scale = 1.0_r8_kind
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_r8_kind
+    if (present(scale_factor)) scale_num = scale_factor
     sc_prev = 1.0_r8_kind
     if (present(scale_prev)) sc_prev = scale_prev
 
@@ -2629,7 +2629,7 @@ contains
             do j=var%jsc-halo,var%jec+halo
               do i=var%isc-halo,var%iec+halo
                 var%bc(n)%field(m)%values(i,j) = sc_prev * var%bc(n)%field(m)%values(i,j) +&
-                    & scale * var_in%bc(n)%field(m)%values(i+i_off,j+j_off)
+                    & scale_num * var_in%bc(n)%field(m)%values(i+i_off,j+j_off)
               enddo
             enddo
           endif
@@ -2654,7 +2654,7 @@ contains
             do j=var%jsc-halo,var%jec+halo
               do i=var%isc-halo,var%iec+halo
                 var%bc_r4(n)%field(m)%values(i,j) = real(sc_prev,r4_kind) * var%bc_r4(n)%field(m)%values(i,j) +&
-                    & real(scale,r4_kind) * var_in%bc_r4(n)%field(m)%values(i+i_off,j+j_off)
+                    & real(scale_num,r4_kind) * var_in%bc_r4(n)%field(m)%values(i+i_off,j+j_off)
               enddo
             enddo
           endif
@@ -2699,12 +2699,12 @@ contains
     logical,          optional, intent(in)    :: pass_through_ice !< If true, only increment BCs whose
                                                          !! value of pass_through ice matches this
 
-    real(r8_kind) :: scale, sc_prev
+    real(r8_kind) :: scale_num, sc_prev
     logical :: increment_bc
     integer :: i, j, k, m, n, n1, n2, halo, i_off, j_off, k_off
 
-    scale = 1.0_r8_kind
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_r8_kind
+    if (present(scale_factor)) scale_num = scale_factor
     sc_prev = 1.0_r8_kind
     if (present(scale_prev)) sc_prev = scale_prev
 
@@ -2792,7 +2792,7 @@ contains
               do j=var%jsc-halo,var%jec+halo
                 do i=var%isc-halo,var%iec+halo
                   var%bc(n)%field(m)%values(i,j,k) = sc_prev * var%bc(n)%field(m)%values(i,j,k) +&
-                      & scale * var_in%bc(n)%field(m)%values(i+i_off,j+j_off,k+k_off)
+                      & scale_num * var_in%bc(n)%field(m)%values(i+i_off,j+j_off,k+k_off)
                 enddo
               enddo
             enddo
@@ -2819,7 +2819,7 @@ contains
               do j=var%jsc-halo,var%jec+halo
                 do i=var%isc-halo,var%iec+halo
                   var%bc_r4(n)%field(m)%values(i,j,k) = real(sc_prev,r4_kind) * var%bc_r4(n)%field(m)%values(i,j,k) +&
-                      & real(scale,r4_kind) * var_in%bc_r4(n)%field(m)%values(i+i_off,j+j_off,k+k_off)
+                      & real(scale_num,r4_kind) * var_in%bc_r4(n)%field(m)%values(i+i_off,j+j_off,k+k_off)
                 enddo
               enddo
             enddo

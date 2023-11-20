@@ -501,7 +501,7 @@ class(FmsNetcdfFile_t), intent(inout)     :: fileob
     CHARACTER(len=1024) :: err_msg
 
 character(len=128),dimension(size(axes)) :: axis_names
-    REAL :: scale, add
+    REAL :: scale_num, add
     INTEGER :: i, indexx, num, ipack, np
     LOGICAL :: use_range
     INTEGER :: axis_indices(SIZE(axes))
@@ -578,7 +578,7 @@ character(len=128),dimension(size(axes)) :: axis_names
     !---- check range ----
     use_range = .FALSE.
     add = 0.0
-    scale = 1.0
+    scale_num = 1.0
     IF ( PRESENT(range) ) THEN
        IF ( RANGE(2) > RANGE(1) ) THEN
           use_range = .TRUE.
@@ -586,7 +586,7 @@ character(len=128),dimension(size(axes)) :: axis_names
           IF ( ipack > 2 ) THEN
              np = ipack/4
              add = 0.5*(RANGE(1)+RANGE(2))
-             scale = (RANGE(2)-RANGE(1)) / real(max_range(2,np)-max_range(1,np))
+             scale_num = (RANGE(2)-RANGE(1)) / real(max_range(2,np)-max_range(1,np))
           END IF
        END IF
     END IF
@@ -597,7 +597,7 @@ character(len=128),dimension(size(axes)) :: axis_names
        Field%miss_present = .TRUE.
        IF ( ipack > 2 ) THEN
           np = ipack/4
-          Field%miss_pack = REAL(missval(np))*scale+add
+          Field%miss_pack = REAL(missval(np))*scale_num+add
           Field%miss_pack_present = .TRUE.
        ELSE
           Field%miss_pack = mval

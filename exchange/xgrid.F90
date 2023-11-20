@@ -280,7 +280,7 @@ type xcell_type
 !  real(r8_kind)    :: area2_ratio     !(= x_area/grid2_area), will be added in the future to improve efficiency
   real(r8_kind)    :: di !< Weight for the gradient of flux
   real(r8_kind)    :: dj !< Weight for the gradient of flux
-  real(r8_kind)    :: scale
+  real(r8_kind)    :: scale_num
 end type xcell_type
 
 !> Type to hold pointers for grid boxes
@@ -619,7 +619,7 @@ logical,          intent(in)           :: use_higher_order
   integer                                    :: size_repro, out_unit
   logical                                    :: scale_exist = .false.
   logical                                    :: is_distribute = .false.
-  real(r8_kind), allocatable, dimension(:)   :: scale
+  real(r8_kind), allocatable, dimension(:)   :: scale_num
   real(r8_kind)                              :: garea
   integer                                    :: npes, isc, iec, nxgrid_local, pe, nxgrid_local_orig
   integer                                    :: nxgrid1, nxgrid2, nset1, nset2, ndivs, cur_ind
@@ -782,16 +782,16 @@ logical,          intent(in)           :: use_higher_order
                 trim(attvalue)//' should be "m2" or "none"', FATAL)
         endif
 
-        !--- if field "scale" exist, read this field. Normally this
+        !--- if field "scale_num" exist, read this field. Normally this
         !--- field only exist in landXocean exchange grid cell.
         if(grid1_id == 'LND' .AND. grid_id == 'OCN') then
-           if(variable_exists(fileobj, "scale")) then
-              allocate(scale(isc:iec))
-              write(out_unit, *)"NOTE from load_xgrid(xgrid_mod): field 'scale' exist in the file "// &
+           if(variable_exists(fileobj, "scale_num")) then
+              allocate(scale_num(isc:iec))
+              write(out_unit, *)"NOTE from load_xgrid(xgrid_mod): field 'scale_num' exist in the file "// &
                   & trim(grid_file)//", this field will be read and the exchange grid cell area will be"// &
-                  & " multiplied by scale"
-              call read_data(fileobj, "scale", tmp, corner=start, edge_lengths=nread)
-              scale = tmp(:,1)
+                  & " multiplied by scale_num"
+              call read_data(fileobj, "scale_num", tmp, corner=start, edge_lengths=nread)
+              scale_num = tmp(:,1)
               scale_exist = .true.
            endif
         endif
@@ -881,7 +881,7 @@ logical,          intent(in)           :: use_higher_order
                        send_buffer(pos+6) = di(l)
                        send_buffer(pos+7) = dj(l)
                     endif
-                    if(scale_exist) send_buffer(pos+nset2) = scale(l)
+                    if(scale_exist) send_buffer(pos+nset2) = scale_num(l)
                     pos = pos + nset2
                  endif
               enddo
@@ -997,8 +997,8 @@ logical,          intent(in)           :: use_higher_order
         allocate(di_side1(nxgrid1), dj_side1(nxgrid1))
      endif
      if(scale_exist) then
-        if(nxgrid_local>0)deallocate(scale)
-        allocate(scale(nxgrid2))
+        if(nxgrid_local>0)deallocate(scale_num)
+        allocate(scale_num(nxgrid2))
      endif
      pos = 0
      l1 = 0; l2 = 0
@@ -1014,7 +1014,7 @@ logical,          intent(in)           :: use_higher_order
               di(l2) = recv_buffer(pos+6)
               dj(l2) = recv_buffer(pos+7)
            endif
-           if(scale_exist)scale(l2) = recv_buffer(pos+nset2)
+           if(scale_exist)scale_num(l2) = recv_buffer(pos+nset2)
            pos = pos + nset2
         enddo
         do n = 1, nrecv1(p)
@@ -1109,9 +1109,9 @@ logical,          intent(in)           :: use_higher_order
            grid%x(ll)%tile = tile1
            grid%x(ll)%area = area(l)
            if(scale_exist) then
-              grid%x(ll)%scale = scale(l)
+              grid%x(ll)%scale_num = scale_num(l)
            else
-              grid%x(ll)%scale = 1.0_r8_kind
+              grid%x(ll)%scale_num = 1.0_r8_kind
            endif
            if(use_higher_order) then
               grid%x(ll)%di  = di(l)
@@ -1283,7 +1283,7 @@ logical,          intent(in)           :: use_higher_order
 
   deallocate(i1, j1, i2, j2, area)
   if(use_higher_order) deallocate(di, dj)
-  if(scale_exist) deallocate(scale)
+  if(scale_exist) deallocate(scale_num)
   if(is_distribute) then
      deallocate(i1_side1, j1_side1, i2_side1, j2_side1, area_side1)
      if(use_higher_order) deallocate(di_side1, dj_side1)
@@ -2959,7 +2959,7 @@ type (xmap_type), intent(inout) :: xmap
               xmap%x2(xmap%size)%j    = xmap%grids(g)%x(l)%j2
               xmap%x2(xmap%size)%l    = lll
               xmap%x2(xmap%size)%k    = k
-              xmap%x2(xmap%size)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale
+              xmap%x2(xmap%size)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale_num
               endif
            enddo
         else
@@ -2977,7 +2977,7 @@ type (xmap_type), intent(inout) :: xmap
               xmap%x2(xmap%size)%i    = xmap%grids(g)%x(l)%i2
               xmap%x2(xmap%size)%j    = xmap%grids(g)%x(l)%j2
               xmap%x2(xmap%size)%k    = k
-              xmap%x2(xmap%size)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale
+              xmap%x2(xmap%size)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale_num
               end if
            enddo
         end if
@@ -3035,7 +3035,7 @@ type (xmap_type), intent(inout) :: xmap
                  xmap%x2_get(xmap%size_get2)%j    = xmap%grids(g)%x(l)%j2
                  xmap%x2_get(xmap%size_get2)%l    = lll
                  xmap%x2_get(xmap%size_get2)%k    = k
-                 xmap%x2_get(xmap%size_get2)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale
+                 xmap%x2_get(xmap%size_get2)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale_num
                  xmap%x2_get(xmap%size_get2)%pos  = xmap%size_put1
               endif
            end if
@@ -3057,7 +3057,7 @@ type (xmap_type), intent(inout) :: xmap
                  xmap%x2_get(xmap%size_get2)%i    = xmap%grids(g)%x(l)%i2
                  xmap%x2_get(xmap%size_get2)%j    = xmap%grids(g)%x(l)%j2
                  xmap%x2_get(xmap%size_get2)%k    = k
-                 xmap%x2_get(xmap%size_get2)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale
+                 xmap%x2_get(xmap%size_get2)%area = xmap%grids(g)%x(l)%area * xmap%grids(g)%x(l)%scale_num
                  xmap%x2_get(xmap%size_get2)%pos  = xmap%size_put1
               endif
            end if

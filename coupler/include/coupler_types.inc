@@ -29,14 +29,14 @@
 
   !> @brief Rescales the fields in the fields in the elements of a coupler_2d_bc_type
   !!
-  !! Rescales the fields in the elements of a coupler_2d_bc_type by multiplying by a factor scale.
-  !! If scale is 0, this is a direct assignment to 0, so that NaNs will not persist.
-  subroutine CT_RESCALE_DATA_2D_(var, scale, halo_size, bc_index, field_index,&
+  !! Rescales the fields in the elements of a coupler_2d_bc_type by multiplying by a factor scale_num.
+  !! If scale_num is 0, this is a direct assignment to 0, so that NaNs will not persist.
+  subroutine CT_RESCALE_DATA_2D_(var, scale_num, halo_size, bc_index, field_index,&
       & exclude_flux_type, only_flux_type, pass_through_ice)
     type(coupler_2d_bc_type),   intent(inout) :: var !< The BC_type structure whose fields are being rescaled
-    real(FMS_CP_KIND_),                       intent(in)    :: scale   !< A scaling factor to multiply fields by
+    real(FMS_CP_KIND_),                       intent(in)    :: scale_num   !< A scaling factor to multiply fields by
     integer,          optional, intent(in)    :: halo_size !< The extent of the halo to copy; 0 by default or
-                                                           !! the full arrays if scale is 0.
+                                                           !! the full arrays if scale_num is 0.
     integer,          optional, intent(in)    :: bc_index  !< The index of the boundary condition
                                                            !! that is being copied
     integer,          optional, intent(in)    :: field_index !< The index of the field in the
@@ -96,7 +96,7 @@
           if (m /= field_index) cycle
         endif
         if ( associated(var%FMS_CP_BC_TYPE_(n)%field(m)%values) ) then
-          if (scale == 0.0_kindl) then
+          if (scale_num == 0.0_kindl) then
             if (present(halo_size)) then
               do j=var%jsc-halo,var%jec+halo
                 do i=var%isc-halo,var%iec+halo
@@ -109,7 +109,7 @@
           else
             do j=var%jsc-halo,var%jec+halo
               do i=var%isc-halo,var%iec+halo
-                var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j) = scale * var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j)
+                var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j) = scale_num * var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j)
               enddo
             enddo
           endif
@@ -121,13 +121,13 @@
   !> @brief Rescales the fields in the elements of a coupler_3d_bc_type
   !!
   !! This subroutine rescales the fields in the elements of a coupler_3d_bc_type by multiplying by a
-  !! factor scale.  If scale is 0, this is a direct assignment to 0, so that NaNs will not persist.
-  subroutine CT_RESCALE_DATA_3D_(var, scale, halo_size, bc_index, field_index,&
+  !! factor scale_num.  If scale_num is 0, this is a direct assignment to 0, so that NaNs will not persist.
+  subroutine CT_RESCALE_DATA_3D_(var, scale_num, halo_size, bc_index, field_index,&
       & exclude_flux_type, only_flux_type, pass_through_ice)
     type(coupler_3d_bc_type),   intent(inout) :: var !< The BC_type structure whose fields are being rescaled
-    real(FMS_CP_KIND_),                       intent(in)    :: scale   !< A scaling factor to multiply fields by
+    real(FMS_CP_KIND_),                       intent(in)    :: scale_num   !< A scaling factor to multiply fields by
     integer,          optional, intent(in)    :: halo_size !< The extent of the halo to copy; 0 by default or
-                                                           !! the full arrays if scale is 0.
+                                                           !! the full arrays if scale_num is 0.
     integer,          optional, intent(in)    :: bc_index  !< The index of the boundary condition
                                                          !! that is being copied
     integer,          optional, intent(in)    :: field_index !< The index of the field in the
@@ -187,7 +187,7 @@
           if (m /= field_index) cycle
         endif
         if ( associated(var%FMS_CP_BC_TYPE_(n)%field(m)%values) ) then
-          if (scale == 0.0_kindl) then
+          if (scale_num == 0.0_kindl) then
             if (present(halo_size)) then
               do k=var%ks,var%ke
                 do j=var%jsc-halo,var%jec+halo
@@ -203,7 +203,7 @@
             do k=var%ks,var%ke
               do j=var%jsc-halo,var%jec+halo
                 do i=var%isc-halo,var%iec+halo
-                  var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j,k) = scale * var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j,k)
+                  var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j,k) = scale_num * var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j,k)
                 enddo
               enddo
             enddo
@@ -254,14 +254,14 @@
     logical,          optional, intent(in)    :: pass_through_ice !< If true, only increment BCs whose
                                                          !! value of pass_through ice matches this
 
-    real(FMS_CP_KIND_) :: scale, sc_prev
+    real(FMS_CP_KIND_) :: scale_num, sc_prev
     logical :: increment_bc
     integer :: i, j, k, m, n, n1, n2, halo
     integer :: io1, jo1, iow, jow, kow  ! Offsets to account for different index conventions.
     integer, parameter :: kindl = FMS_CP_KIND_
 
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
     sc_prev = 1.0_kindl
     if (present(scale_prev)) sc_prev = scale_prev
 
@@ -351,7 +351,7 @@
             do j=var%jsc-halo,var%jec+halo
               do i=var%isc-halo,var%iec+halo
                 var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j) = sc_prev * var%FMS_CP_BC_TYPE_(n)%field(m)%values(i,j) +&
-                    & (scale * weights(i+iow,j+jow,k+kow)) * var_in%FMS_CP_BC_TYPE_(n)%field(m)%values(i+io1,j+io1,k)
+                    & (scale_num * weights(i+iow,j+jow,k+kow)) * var_in%FMS_CP_BC_TYPE_(n)%field(m)%values(i+io1,j+io1,k)
               enddo
             enddo
           enddo
@@ -399,7 +399,7 @@
         & '==>Error from coupler_types_mod (CT_extract_data_2d):'
     character(len=400)      :: error_msg
 
-    real(FMS_CP_KIND_) :: scale
+    real(FMS_CP_KIND_) :: scale_num
     integer :: i, j, halo, i_off, j_off
     integer, parameter :: kindl = FMS_CP_KIND_
 
@@ -410,8 +410,8 @@
 
     halo = 0
     if (present(halo_size)) halo = halo_size
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
 
     if ((var_in%isc-var_in%isd < halo) .or. (var_in%ied-var_in%iec < halo))&
         & call mpp_error(FATAL, trim(error_header)//" Excessive i-direction halo size for the input structure.")
@@ -492,7 +492,7 @@
 
     do j=var_in%jsc-halo,var_in%jec+halo
       do i=var_in%isc-halo,var_in%iec+halo
-        array_out(i+i_off,j+j_off) = scale * var_in%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j)
+        array_out(i+i_off,j+j_off) = scale_num * var_in%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j)
       enddo
     enddo
   end subroutine CT_EXTRACT_DATA_2D_
@@ -537,7 +537,7 @@
         & '==>Error from coupler_types_mod (CT_extract_data_3d_2d):'
     character(len=400)      :: error_msg
 
-    real(FMS_CP_KIND_) :: scale
+    real(FMS_CP_KIND_) :: scale_num
     integer :: i, j, halo, i_off, j_off
     integer, parameter :: kindl = FMS_CP_KIND_
 
@@ -548,8 +548,8 @@
 
     halo = 0
     if (present(halo_size)) halo = halo_size
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
 
     if ((var_in%isc-var_in%isd < halo) .or. (var_in%ied-var_in%iec < halo))&
         & call mpp_error(FATAL, trim(error_header)//" Excessive i-direction halo size for the input structure.")
@@ -636,7 +636,7 @@
 
     do j=var_in%jsc-halo,var_in%jec+halo
       do i=var_in%isc-halo,var_in%iec+halo
-        array_out(i+i_off,j+j_off) = scale * var_in%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k_in)
+        array_out(i+i_off,j+j_off) = scale_num * var_in%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k_in)
       enddo
     enddo
   end subroutine CT_EXTRACT_DATA_3D_2D_
@@ -681,7 +681,7 @@
         & '==>Error from coupler_types_mod (CT_extract_data_3d):'
     character(len=400) :: error_msg
 
-    real(FMS_CP_KIND_) :: scale
+    real(FMS_CP_KIND_) :: scale_num
     integer :: i, j, k, halo, i_off, j_off, k_off
     integer, parameter :: kindl = FMS_CP_KIND_
 
@@ -692,8 +692,8 @@
 
     halo = 0
     if (present(halo_size)) halo = halo_size
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
 
     if ((var_in%isc-var_in%isd < halo) .or. (var_in%ied-var_in%iec < halo))&
         & call mpp_error(FATAL, trim(error_header)//" Excessive i-direction halo size for the input structure.")
@@ -783,7 +783,7 @@
     do k=var_in%ks,var_in%ke
       do j=var_in%jsc-halo,var_in%jec+halo
         do i=var_in%isc-halo,var_in%iec+halo
-          array_out(i+i_off,j+j_off,k+k_off) = scale * var_in%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k)
+          array_out(i+i_off,j+j_off,k+k_off) = scale_num * var_in%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k)
         enddo
       enddo
     enddo
@@ -827,7 +827,7 @@
         & '==>Error from coupler_types_mod (CT_set_data_2d):'
     character(len=400) :: error_msg
 
-    real(FMS_CP_KIND_) :: scale
+    real(FMS_CP_KIND_) :: scale_num
     integer :: i, j, halo, i_off, j_off
     integer, parameter :: kindl = FMS_CP_KIND_
 
@@ -835,8 +835,8 @@
 
     halo = 0
     if (present(halo_size)) halo = halo_size
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
 
     if ((var%isc-var%isd < halo) .or. (var%ied-var%iec < halo))&
         & call mpp_error(FATAL, trim(error_header)//" Excessive i-direction halo size for the input structure.")
@@ -917,7 +917,7 @@
 
     do j=var%jsc-halo,var%jec+halo
       do i=var%isc-halo,var%iec+halo
-        var%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j) = scale * array_in(i+i_off,j+j_off)
+        var%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j) = scale_num * array_in(i+i_off,j+j_off)
       enddo
     enddo
   end subroutine CT_SET_DATA_2D_
@@ -964,7 +964,7 @@
         & '==>Error from coupler_types_mod (CT_set_data_3d_2d):'
     character(len=400)      :: error_msg
 
-    real(FMS_CP_KIND_) :: scale
+    real(FMS_CP_KIND_) :: scale_num
     integer :: i, j, halo, i_off, j_off
     integer, parameter :: kindl = FMS_CP_KIND_
 
@@ -972,8 +972,8 @@
 
     halo = 0
     if (present(halo_size)) halo = halo_size
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
 
     if ((var%isc-var%isd < halo) .or. (var%ied-var%iec < halo))&
         & call mpp_error(FATAL, trim(error_header)//" Excessive i-direction halo size for the input structure.")
@@ -1060,7 +1060,7 @@
 
     do j=var%jsc-halo,var%jec+halo
       do i=var%isc-halo,var%iec+halo
-        var%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k_out) = scale * array_in(i+i_off,j+j_off)
+        var%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k_out) = scale_num * array_in(i+i_off,j+j_off)
       enddo
     enddo
   end subroutine CT_SET_DATA_2D_3D_
@@ -1105,7 +1105,7 @@
         & '==>Error from coupler_types_mod (CT_set_data_3d):'
     character(len=400) :: error_msg
 
-    real(FMS_CP_KIND_) :: scale
+    real(FMS_CP_KIND_) :: scale_num
     integer :: i, j, k, halo, i_off, j_off, k_off
     integer, parameter :: kindl = FMS_CP_KIND_
 
@@ -1113,8 +1113,8 @@
 
     halo = 0
     if (present(halo_size)) halo = halo_size
-    scale = 1.0_kindl
-    if (present(scale_factor)) scale = scale_factor
+    scale_num = 1.0_kindl
+    if (present(scale_factor)) scale_num = scale_factor
 
     if ((var%isc-var%isd < halo) .or. (var%ied-var%iec < halo))&
         & call mpp_error(FATAL, trim(error_header)//" Excessive i-direction halo size for the input structure.")
@@ -1204,7 +1204,7 @@
     do k=var%ks,var%ke
       do j=var%jsc-halo,var%jec+halo
         do i=var%isc-halo,var%iec+halo
-          var%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k) = scale * array_in(i+i_off,j+j_off,k+k_off)
+          var%FMS_CP_BC_TYPE_(bc_index)%field(field_index)%values(i,j,k) = scale_num * array_in(i+i_off,j+j_off,k+k_off)
         enddo
       enddo
     enddo
